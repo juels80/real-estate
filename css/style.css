@@ -359,7 +359,9 @@ footer { padding: 70px 0 40px; border-top: 1px solid var(--line); }
   .hero-meta div strong { font-size: 32px; }
   .check { margin-left: 0; }
   .result-count { margin-left: 0; width: 100%; }
-  .hero-toggle { top: -58px; }
+  /* Phones: a still, portrait-friendly photo instead of the hero film (CSS background, so desktops never fetch it) */
+  .hero-bg { background: var(--ink) image-set(url("../assets/images/photo-1622396481322-3b83d186701b-800.jpg") 1x, url("../assets/images/photo-1622396481322-3b83d186701b.jpg") 2x) center / cover no-repeat; }
+  #heroVideo, .hero-toggle { display: none; }
   .calc-box { padding: 28px 22px; }
   .calc-result strong { font-size: 40px; }
   .modal { padding: 0; }

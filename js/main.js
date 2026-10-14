@@ -3,6 +3,8 @@ const IMG = id => `assets/images/${id}.jpg`;
 const IMG_SM = id => `assets/images/${id}-800.jpg`;
 const SRCSET = id => `${IMG_SM(id)} 800w, ${IMG(id)} 1800w`;
 const VID = id => `assets/videos/${id}.mp4`;
+// First-frame stills exported from each clip (so nothing renders as a black box before playback)
+const POSTER = id => `assets/images/poster-${id}.jpg`;
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // Small screens and data-saver connections get posters instead of autoplaying background film
 const lite = matchMedia("(max-width: 720px)").matches || !!(navigator.connection && navigator.connection.saveData);
@@ -163,6 +165,9 @@ function setToggle(btn, playing, what) {
 
 // Hero video: plays on large screens only, never with reduced motion
 const heroVideo = $("#heroVideo"), heroToggle = $("#heroToggle");
+// Phones show a still photo (CSS) and never load the film or its poster
+const phone = matchMedia("(max-width: 720px)").matches;
+if (!phone) heroVideo.poster = POSTER("27543-lg");
 let heroPlaying = !reduceMotion && !lite;
 function syncHero() {
   if (heroPlaying) { heroVideo.preload = "auto"; heroVideo.play().catch(() => {}); } else heroVideo.pause();
@@ -173,12 +178,12 @@ syncHero();
 
 // Gallery. Film captions name the listing they show so footage is never passed off as another home.
 const slides = [
-  { kind: "video", src: VID(27543), poster: IMG("photo-1748063578185-3d68121b11ff"), title: "Glasshouse No. 9", meta: "Kiawah Island, SC", text: "Steps from the dunes, open to the tide." },
+  { kind: "video", src: VID(27543), poster: POSTER(27543), title: "Glasshouse No. 9", meta: "Kiawah Island, SC", text: "Steps from the dunes, open to the tide." },
   { kind: "image", img: "photo-1600596542815-ffad4c1539a9", title: "Villa Serena", meta: "Lake Como, Italy", text: "Terraced gardens and a century of quiet." },
-  { kind: "video", src: VID(30357), poster: IMG("photo-1512917774080-9991f1c4c750"), title: "Campoamor Residence", meta: "Costa Blanca, Spain · Aerial", text: "The coastline, the golf course, and the short walk between them." },
+  { kind: "video", src: VID(30357), poster: POSTER(30357), title: "Campoamor Residence", meta: "Costa Blanca, Spain · Aerial", text: "The coastline, the golf course, and the short walk between them." },
   { kind: "image", img: "photo-1758957701419-2c6e266f7988", title: "Interior Study", meta: "Concept interior", text: "Raw concrete, live-edge oak, and soft north light." },
-  { kind: "video", src: VID(8603), poster: IMG("photo-1600596542815-ffad4c1539a9"), title: "Villa Serena, from above", meta: "Lake Como, Italy · Aerial", text: "The orchards and terraces that surround the house." },
-  { kind: "video", src: VID(48394), title: "Above the Avenues", meta: "Neighborhood · Aerial", text: "Tree-lined streets, quiet by design." },
+  { kind: "video", src: VID(8603), poster: POSTER(8603), title: "Villa Serena, from above", meta: "Lake Como, Italy · Aerial", text: "The orchards and terraces that surround the house." },
+  { kind: "video", src: VID(48394), poster: POSTER(48394), title: "Above the Avenues", meta: "Neighborhood · Aerial", text: "Tree-lined streets, quiet by design." },
 ];
 
 const stage = $("#stage"), caption = $("#caption"), bar = $("#bar"), stageToggle = $("#sPlay");
@@ -198,7 +203,7 @@ slides.forEach((s, i) => {
   t.className = "thumb"; t.setAttribute("aria-label", `Show slide ${i + 1}: ${s.title}`);
   t.innerHTML = s.kind === "video"
     ? (s.poster
-      ? `<img src="${s.poster.replace(".jpg", "-800.jpg")}" alt="" loading="lazy">`
+      ? `<img src="${s.poster}" alt="" loading="lazy">`
       : `<video muted playsinline preload="metadata" src="${s.src}#t=2" aria-hidden="true"></video>`) + playIcon
     : `<img src="${IMG_SM(s.img)}" alt="" loading="lazy">`;
   t.onclick = () => go(i, i > cur ? 1 : -1, true);
@@ -296,18 +301,18 @@ const tiles = [
   { kind: "image", img: "photo-1564078516393-cf04bd966897", title: "Sunset Lounge", meta: "Concept interior", cls: "h2" },
   { kind: "image", img: "photo-1512917774080-9991f1c4c750", title: "Campoamor Residence", meta: "Costa Blanca, Spain" },
   { kind: "image", img: "photo-1705326701287-346fc37a2c86", title: "The White Salon", meta: "Concept interior" },
-  { kind: "video", src: VID(26757), title: "Azure Sky Penthouse", meta: "Detail film · Miami Beach", cls: "w2" },
-  { kind: "video", src: VID(48394), title: "Above the Avenues", meta: "Neighborhood film", cls: "w2 h2" },
+  { kind: "video", src: VID(26757), poster: POSTER(26757), title: "Azure Sky Penthouse", meta: "Detail film · Miami Beach", cls: "w2" },
+  { kind: "video", src: VID(48394), poster: POSTER(48394), title: "Above the Avenues", meta: "Neighborhood film", cls: "w2 h2" },
   { kind: "image", img: "photo-1704040686428-7534b262d0d8", title: "Garden Room", meta: "Concept interior" },
   { kind: "image", img: "photo-1748063578185-3d68121b11ff", title: "Glasshouse No. 9", meta: "Kiawah Island, SC" },
-  { kind: "video", src: VID(24945), title: "Edge of Town", meta: "Neighborhood film", cls: "w2" },
+  { kind: "video", src: VID(24945), poster: POSTER(24945), title: "Edge of Town", meta: "Neighborhood film", cls: "w2" },
   { kind: "image", img: "photo-1580587771525-78b9dba3b914", title: "Monolith House", meta: "Austin, Texas · Sold" },
   { kind: "image", img: "photo-1704040686413-2c607dbd2f06", title: "Media Lounge", meta: "Concept interior" },
 ];
 $("#mosaic").innerHTML = tiles.map((t, i) => `
   <figure class="tile reveal ${t.cls || ""}" style="--d:${i % 4}" data-i="${i}" tabindex="0" role="button" aria-label="Open ${t.title}${t.kind === "video" ? " film" : ""}">
     ${t.kind === "video"
-      ? `<video muted loop playsinline preload="metadata" src="${t.src}#t=1.5" aria-hidden="true"></video><span class="badge-v">Film</span>`
+      ? `<video muted loop playsinline preload="none" poster="${t.poster}" src="${t.src}" aria-hidden="true"></video><span class="badge-v">Film</span>`
       : `<img src="${IMG(t.img)}" srcset="${SRCSET(t.img)}" sizes="(max-width: 1024px) 50vw, 600px" alt="${t.title}" loading="lazy">`}
     <figcaption><div><small>${t.meta}</small><b>${t.title}</b></div></figcaption>
   </figure>`).join("");
