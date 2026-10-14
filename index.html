@@ -31,7 +31,7 @@
 
 <header class="hero">
   <div class="hero-bg">
-    <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="assets/images/photo-1613490493576-7fde63acd811.jpg" style="width:100%;height:100%;object-fit:cover" aria-hidden="true">
+    <video id="heroVideo" muted loop playsinline preload="none" poster="assets/images/photo-1613490493576-7fde63acd811.jpg" style="width:100%;height:100%;object-fit:cover" aria-hidden="true">
       <source src="assets/videos/27543.mp4" type="video/mp4">
     </video>
   </div>
@@ -54,10 +54,12 @@
       <button type="submit" class="btn">Search</button>
     </form>
 
+    <button class="media-toggle hero-toggle" id="heroToggle" type="button" aria-label="Pause background video"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
     <div class="hero-meta reveal">
       <div><strong>148</strong>Private listings</div>
       <div><strong>$2.1B</strong>Represented value</div>
       <div><strong>36</strong>Markets</div>
+      <p class="meta-note">Illustrative figures for a concept brand.</p>
     </div>
   </div>
 </header>
@@ -77,6 +79,7 @@
       <button class="chip" data-f="Estate" aria-pressed="false">Estates</button>
       <button class="chip" data-f="Penthouse" aria-pressed="false">Penthouses</button>
       <button class="chip" data-f="Coastal" aria-pressed="false">Coastal</button>
+      <label class="check"><input type="checkbox" id="qSold"> Include sold</label>
       <span class="result-count" id="count" aria-live="polite"></span>
     </div>
     <div class="grid" id="grid"></div>
@@ -92,10 +95,12 @@
       </div>
       <p>Film and photography from across the collection. Let it play, or take the wheel with the arrows, a swipe, or your keyboard.</p>
     </div>
-    <div class="stage reveal" id="stage" role="region" aria-roledescription="carousel" aria-label="Featured gallery">
+    <div id="gallery-controls">
+    <div class="stage reveal" id="stage" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Featured gallery">
       <div class="stage-caption" id="caption" aria-live="off" aria-atomic="true"></div>
       <div class="stage-ui">
         <div class="counter" id="counter"></div>
+        <button class="media-toggle" id="sPlay" type="button" aria-label="Pause slideshow"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
         <div style="display:flex;gap:10px">
           <button class="arrow" id="sPrev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg></button>
           <button class="arrow" id="sNext" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -104,6 +109,7 @@
       <div class="progress"><i id="bar"></i></div>
     </div>
     <div class="thumbs" id="thumbs"></div>
+    </div>
 
     <div class="mosaic-head reveal">
       <h3>Inside the <em>collection</em></h3>
@@ -123,13 +129,14 @@
     <div class="chapter" data-c="1"><p class="eyebrow">Chapter II · Setting</p><h3>Context is part of the <em>home</em>.</h3><p>Light, neighbors, the walk to the shore. Our films show what floor plans leave out.</p></div>
     <div class="chapter" data-c="2"><p class="eyebrow">Chapter III · Decision</p><h3>Fall for it before you <em>fly</em>.</h3><p>Buyers in 36 markets shortlist from film first, then book a private viewing.</p></div>
     <div class="film-meter"><span></span><span></span><span></span></div>
+    <button class="media-toggle film-toggle" id="filmToggle" type="button" aria-label="Pause film"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
   </div>
 </section>
 
 <section class="feature" id="private">
   <div class="wrap split">
     <div class="feature-img reveal">
-      <img src="assets/images/photo-1706808849780-7a04fbac83ef.jpg" alt="Modern house with pool and lounge chairs">
+      <img src="assets/images/photo-1706808849780-7a04fbac83ef.jpg" srcset="assets/images/photo-1706808849780-7a04fbac83ef-800.jpg 800w, assets/images/photo-1706808849780-7a04fbac83ef.jpg 1800w" sizes="(max-width: 1024px) 100vw, 640px" alt="Modern house with pool and lounge chairs" loading="lazy">
       <div class="badge"><strong>Off-market</strong><span>Private Office access</span></div>
     </div>
     <div class="reveal">
@@ -174,7 +181,8 @@
       <div class="field"><label class="field-top" for="down">Down payment <output id="oDown" for="down"></output></label><input type="range" id="down" min="10" max="60" step="1" value="25"></div>
       <div class="field"><label class="field-top" for="rate">Interest rate <output id="oRate" for="rate"></output></label><input type="range" id="rate" min="2" max="9" step="0.05" value="6.25"></div>
       <div class="field"><label class="field-top" for="term">Term <output id="oTerm" for="term"></output></label><input type="range" id="term" min="10" max="30" step="5" value="30"></div>
-      <div class="calc-result"><span>Est. monthly</span><strong id="monthly">$0</strong></div>
+      <div class="calc-result"><span>Est. monthly</span><strong id="monthly" aria-live="polite">$0</strong></div>
+      <p class="disclaimer">Illustrative estimate only. Principal and interest; excludes property taxes, insurance, HOA dues and mortgage insurance. Not a loan offer or rate quote.</p>
     </div>
   </div>
 </section>
@@ -187,7 +195,7 @@
 </section>
 
 <section class="cta" id="contact">
-  <img src="assets/images/photo-1748063578185-3d68121b11ff.jpg" alt="Modern house exterior glowing at night">
+  <img src="assets/images/photo-1748063578185-3d68121b11ff.jpg" srcset="assets/images/photo-1748063578185-3d68121b11ff-800.jpg 800w, assets/images/photo-1748063578185-3d68121b11ff.jpg 1800w" sizes="100vw" alt="Modern house exterior glowing at night" loading="lazy">
   <div class="wrap reveal">
     <p class="eyebrow">Begin</p>
     <h2>Your next address starts with a <em>conversation</em>.</h2>
@@ -207,6 +215,11 @@
       <div><h4>Company</h4><ul><li><a href="#process">Process</a></li><li><a href="#contact">Contact</a></li></ul></div>
       <div><h4>Visit</h4><p>Charleston, South Carolina<br>hello@meridian.example</p></div>
     </div>
+    <div class="legal">
+      <p>Listings, prices and figures on this site are fictional and for demonstration only. Information is deemed reliable but not guaranteed.</p>
+      <p>Equal Housing Opportunity. Meridian Estates supports the Fair Housing Act and does not discriminate on the basis of race, color, religion, sex, disability, familial status or national origin.</p>
+      <p>Photography via Unsplash. Film via Mixkit. Used under their free licenses.</p>
+    </div>
     <div class="credit">
       <span>© 2026 Meridian Estates. A fictional brand.</span>
       <span>Concept project designed by <a href="https://www.xperiencestudio.org" target="_blank" rel="noopener">Xperience</a></span>
@@ -216,7 +229,7 @@
 
 <div class="modal" id="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-    <img id="mImg" src="" alt="">
+    <img id="mImg" alt="">
     <video id="mVid" muted loop playsinline hidden></video>
     <div class="modal-body">
       <button class="close" id="mClose" aria-label="Close listing">×</button>
@@ -226,10 +239,15 @@
       <p class="price" id="mPrice"></p>
       <div class="stat-row" id="mStats"></div>
       <p class="desc" id="mDesc"></p>
+      <p class="sold-note" id="soldNote" hidden>This residence has sold. Ask an advisor about similar homes.</p>
       <form class="tour-form" id="tourForm">
-        <input type="text" id="tourName" placeholder="Full name" aria-label="Full name" autocomplete="name" required>
-        <input type="email" id="tourEmail" placeholder="Email address" aria-label="Email address" autocomplete="email" required>
+        <input type="hidden" id="tourListing" name="listing">
+        <label for="tourName">Full name</label>
+        <input type="text" id="tourName" name="name" autocomplete="name" required>
+        <label for="tourEmail">Email address</label>
+        <input type="email" id="tourEmail" name="email" autocomplete="email" required>
         <button class="btn" type="submit" style="justify-content:center">Request a Private Viewing</button>
+        <p class="form-note">Demo only: this concept form does not send your details anywhere.</p>
       </form>
     </div>
   </div>
@@ -245,6 +263,7 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+<script src="js/lib.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
