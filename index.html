@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Estates — Estate Listings Platform</title>
+<meta name="description" content="Meridian Estates: a concept estate listings platform by Xperience.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="intro" id="intro" aria-hidden="true"><span class="logo">Meridian<span>.</span></span><i></i></div>
+
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a href="#" class="logo">Meridian<span>.</span></a>
+    <ul id="menu">
+      <li><a href="#listings">Listings</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#private">Private Office</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#calculator">Finance</a></li>
+    </ul>
+    <a href="#contact" class="btn ghost">Book a Viewing</a>
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">Menu</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-bg">
+    <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="assets/images/photo-1613490493576-7fde63acd811.jpg" style="width:100%;height:100%;object-fit:cover" aria-hidden="true">
+      <source src="assets/videos/27543.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="wrap">
+    <p class="eyebrow reveal">Curated Residences · Est. 2026</p>
+    <h1 class="reveal">Homes worth <em>arriving</em> at.</h1>
+    <p class="lead reveal">A private collection of architecturally significant properties, presented with the care of a gallery and the clarity of a modern platform.</p>
+
+    <form class="search reveal" id="search">
+      <label><span>Location</span><input id="qLoc" type="text" placeholder="City, neighborhood, or coast"></label>
+      <label><span>Type</span>
+        <select id="qType"><option value="all">Any type</option><option>Villa</option><option>Estate</option><option>Penthouse</option><option>Coastal</option></select>
+      </label>
+      <label><span>Budget</span>
+        <select id="qBudget"><option value="0">No limit</option><option value="3000000">Up to $3M</option><option value="6000000">Up to $6M</option><option value="10000000">Up to $10M</option></select>
+      </label>
+      <label><span>Bedrooms</span>
+        <select id="qBeds"><option value="0">Any</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select>
+      </label>
+      <button type="submit" class="btn">Search</button>
+    </form>
+
+    <div class="hero-meta reveal">
+      <div><strong>148</strong>Private listings</div>
+      <div><strong>$2.1B</strong>Represented value</div>
+      <div><strong>36</strong>Markets</div>
+    </div>
+  </div>
+</header>
+
+<section id="listings">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="eyebrow">The Collection</p>
+        <h2>Selected <em>residences</em></h2>
+      </div>
+      <p>Every listing is personally vetted, photographed, and verified before it reaches this page. No noise, no filler.</p>
+    </div>
+    <div class="filters reveal" id="filters">
+      <button class="chip active" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="Villa" aria-pressed="false">Villas</button>
+      <button class="chip" data-f="Estate" aria-pressed="false">Estates</button>
+      <button class="chip" data-f="Penthouse" aria-pressed="false">Penthouses</button>
+      <button class="chip" data-f="Coastal" aria-pressed="false">Coastal</button>
+      <span class="result-count" id="count" aria-live="polite"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section class="gallery" id="gallery">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="eyebrow">The Gallery</p>
+        <h2>See it in <em>motion</em></h2>
+      </div>
+      <p>Film and photography from across the collection. Let it play, or take the wheel with the arrows, a swipe, or your keyboard.</p>
+    </div>
+    <div class="stage reveal" id="stage" role="region" aria-roledescription="carousel" aria-label="Featured gallery">
+      <div class="stage-caption" id="caption" aria-live="off" aria-atomic="true"></div>
+      <div class="stage-ui">
+        <div class="counter" id="counter"></div>
+        <div style="display:flex;gap:10px">
+          <button class="arrow" id="sPrev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button class="arrow" id="sNext" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+      <div class="progress"><i id="bar"></i></div>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+
+    <div class="mosaic-head reveal">
+      <h3>Inside the <em>collection</em></h3>
+      <p style="color:var(--muted);font-size:14px">Hover to preview film · select to expand</p>
+    </div>
+    <div class="mosaic" id="mosaic"></div>
+  </div>
+</section>
+
+<section class="film" id="film" aria-label="Property film">
+  <div class="film-sticky">
+    <div class="film-frame">
+      <video id="filmVid" muted loop playsinline preload="metadata" src="assets/videos/30357.mp4"></video>
+    </div>
+    <div class="film-title"><h2>The <em>Approach</em></h2></div>
+    <div class="chapter" data-c="0"><p class="eyebrow">Chapter I · Arrival</p><h3>The coast comes into <em>view</em>.</h3><p>Every Meridian home is filmed the way you would first see it: from the road, the water, or the air.</p></div>
+    <div class="chapter" data-c="1"><p class="eyebrow">Chapter II · Setting</p><h3>Context is part of the <em>home</em>.</h3><p>Light, neighbors, the walk to the shore. Our films show what floor plans leave out.</p></div>
+    <div class="chapter" data-c="2"><p class="eyebrow">Chapter III · Decision</p><h3>Fall for it before you <em>fly</em>.</h3><p>Buyers in 36 markets shortlist from film first, then book a private viewing.</p></div>
+    <div class="film-meter"><span></span><span></span><span></span></div>
+  </div>
+</section>
+
+<section class="feature" id="private">
+  <div class="wrap split">
+    <div class="feature-img reveal">
+      <img src="assets/images/photo-1706808849780-7a04fbac83ef.jpg" alt="Modern house with pool and lounge chairs">
+      <div class="badge"><strong>Off-market</strong><span>Private Office access</span></div>
+    </div>
+    <div class="reveal">
+      <p class="eyebrow">The Private Office</p>
+      <h2>Some homes are never <em>listed</em>.</h2>
+      <p>For buyers who value discretion, our Private Office opens a quiet catalogue of off-market properties, introduced one-to-one by a dedicated advisor.</p>
+      <ul>
+        <li><span>i.</span>A single advisor from first call to closing</li>
+        <li><span>ii.</span>Off-market and pre-release inventory</li>
+        <li><span>iii.</span>Private viewings, scheduled around you</li>
+      </ul>
+      <a href="#contact" class="btn ghost">Request Access</a>
+    </div>
+  </div>
+</section>
+
+<section id="process">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="eyebrow">How it works</p>
+        <h2>Three steps. <em>No compromise.</em></h2>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="num">01</div><h3>Discover</h3><p>Browse a tightly curated collection, or brief an advisor and let the right homes find you.</p></div>
+      <div class="step reveal"><div class="num">02</div><h3>Experience</h3><p>Private, unhurried viewings in person or by guided video walkthrough, with full documentation ready.</p></div>
+      <div class="step reveal"><div class="num">03</div><h3>Acquire</h3><p>Negotiation, legal, and finance handled by one team, through closing and beyond.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="calc" id="calculator">
+  <div class="wrap split">
+    <div class="reveal">
+      <p class="eyebrow">Finance</p>
+      <h2>Know the <em>numbers</em> before you fall in love.</h2>
+      <p>An instant estimate of your monthly payment. Adjust the sliders to see how price, deposit, and term shape the picture.</p>
+    </div>
+    <div class="calc-box reveal">
+      <div class="field"><label class="field-top" for="price">Property price <output id="oPrice" for="price"></output></label><input type="range" id="price" min="500000" max="15000000" step="50000" value="4250000"></div>
+      <div class="field"><label class="field-top" for="down">Down payment <output id="oDown" for="down"></output></label><input type="range" id="down" min="10" max="60" step="1" value="25"></div>
+      <div class="field"><label class="field-top" for="rate">Interest rate <output id="oRate" for="rate"></output></label><input type="range" id="rate" min="2" max="9" step="0.05" value="6.25"></div>
+      <div class="field"><label class="field-top" for="term">Term <output id="oTerm" for="term"></output></label><input type="range" id="term" min="10" max="30" step="5" value="30"></div>
+      <div class="calc-result"><span>Est. monthly</span><strong id="monthly">$0</strong></div>
+    </div>
+  </div>
+</section>
+
+<section class="quote">
+  <div class="wrap reveal">
+    <blockquote>&ldquo;We shape our buildings; thereafter they shape us.&rdquo;</blockquote>
+    <cite>— Winston Churchill</cite>
+  </div>
+</section>
+
+<section class="cta" id="contact">
+  <img src="assets/images/photo-1748063578185-3d68121b11ff.jpg" alt="Modern house exterior glowing at night">
+  <div class="wrap reveal">
+    <p class="eyebrow">Begin</p>
+    <h2>Your next address starts with a <em>conversation</em>.</h2>
+    <p>Tell us what home means to you. An advisor will reply within one business day.</p>
+    <div class="actions">
+      <a href="mailto:hello@meridian.example" class="btn">Speak to an Advisor</a>
+      <a href="#listings" class="btn ghost">Browse Listings</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div><a href="#" class="logo">Meridian<span>.</span></a><p style="margin-top:14px;max-width:32ch">Curated residences for buyers who don't compromise.</p></div>
+      <div><h4>Explore</h4><ul><li><a href="#listings">Listings</a></li><li><a href="#private">Private Office</a></li><li><a href="#calculator">Finance</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#process">Process</a></li><li><a href="#contact">Contact</a></li></ul></div>
+      <div><h4>Visit</h4><p>Charleston, South Carolina<br>hello@meridian.example</p></div>
+    </div>
+    <div class="credit">
+      <span>© 2026 Meridian Estates. A fictional brand.</span>
+      <span>Concept project designed by <a href="https://www.xperiencestudio.org" target="_blank" rel="noopener">Xperience</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <img id="mImg" src="" alt="">
+    <video id="mVid" muted loop playsinline hidden></video>
+    <div class="modal-body">
+      <button class="close" id="mClose" aria-label="Close listing">×</button>
+      <p class="eyebrow" id="mType"></p>
+      <h3 id="mTitle"></h3>
+      <p class="loc" id="mLoc" style="color:var(--muted)"></p>
+      <p class="price" id="mPrice"></p>
+      <div class="stat-row" id="mStats"></div>
+      <p class="desc" id="mDesc"></p>
+      <form class="tour-form" id="tourForm">
+        <input type="text" id="tourName" placeholder="Full name" aria-label="Full name" autocomplete="name" required>
+        <input type="email" id="tourEmail" placeholder="Email address" aria-label="Email address" autocomplete="email" required>
+        <button class="btn" type="submit" style="justify-content:center">Request a Private Viewing</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Gallery viewer" aria-hidden="true">
+  <div class="lb-stage">
+    <button class="close" id="lbClose" aria-label="Close gallery">×</button>
+    <button class="arrow prev" id="lbPrev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="lb-media" id="lbMedia"></div>
+    <button class="arrow next" id="lbNext" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="lb-bar"><b id="lbTitle"></b><span id="lbMeta"></span></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
