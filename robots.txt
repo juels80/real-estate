@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://real-estate-8h5h.vercel.app/sitemap.xml

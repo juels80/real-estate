@@ -1,4 +1,4 @@
-const { money, num, filterListings, monthlyPayment } = window.Meridian;
+const { money, num, slugify, filterListings, sortListings, stateToQuery, queryToState, monthlyPayment } = window.Meridian;
 const IMG = id => `assets/images/${id}.jpg`;
 const IMG_SM = id => `assets/images/${id}-800.jpg`;
 const SRCSET = id => `${IMG_SM(id)} 800w, ${IMG(id)} 1800w`;
@@ -28,12 +28,22 @@ const listings = [
   { title: "Azure Sky Penthouse", loc: "Miami Beach, FL", type: "Penthouse", status: "active", video: 26757, price: 7250000, beds: 4, baths: 5, sqft: 4600, acres: 0, img: "photo-1670589953882-b94c9cb380f5", desc: "A full-floor residence with a rooftop pool, private elevator, crystal-lit salon, and unobstructed ocean horizons." },
   { title: "Monolith House", loc: "Austin, Texas", type: "Villa", status: "sold", price: 3650000, beds: 5, baths: 5, sqft: 5200, acres: 0.9, img: "photo-1580587771525-78b9dba3b914", desc: "Clean geometry in white render and warm wood, with a landscaped garden designed for long evenings." },
 ];
+listings.forEach(l => { l.slug = slugify(l.title); });
 const STATUS_LABEL = { pending: "Under offer", sold: "Sold" };
 
 const $ = s => document.querySelector(s);
 const isTyping = t => t.closest && t.closest("input, select, textarea, [contenteditable]");
-const favs = new Set();
+// The shortlist is remembered between visits; storage can be blocked, so every access is guarded
+const FAV_KEY = "meridian:shortlist";
+const known = new Set(listings.map(l => l.slug));
+const storedFavs = (() => {
+  try { const v = JSON.parse(localStorage.getItem(FAV_KEY)); return Array.isArray(v) ? v : []; } catch { return []; }
+})();
+const favs = new Set(storedFavs.filter(x => known.has(x)));
+const saveFavs = () => { try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch {} };
+if (favs.size !== storedFavs.length) saveFavs();
 let chip = "all";
+let openSlug = null;
 
 // Focus handling shared by the listing modal and the gallery lightbox
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select, textarea, video[controls], [tabindex]:not([tabindex="-1"])';
@@ -51,22 +61,37 @@ function favIcon(on) {
   return `<svg viewBox="0 0 24 24" fill="${on ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.2 3.4 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.6 0 6 3.7 4.5 7.3C19.5 16.4 12 21 12 21z"/></svg>`;
 }
 
+// The page's filter controls as one state object (same shape the URL uses)
+function readState() {
+  return {
+    type: chip !== "all" ? chip : $("#qType").value, loc: $("#qLoc").value, budget: +$("#qBudget").value, beds: +$("#qBeds").value,
+    showSold: $("#qSold").checked, saved: $("#savedChip").getAttribute("aria-pressed") === "true", sort: $("#qSort").value,
+  };
+}
+// Keep the address bar in step with the filters (and the open listing) so any view can be shared
+function syncUrl() {
+  const q = new URLSearchParams(stateToQuery(readState()));
+  if (openSlug) q.set("home", openSlug);
+  const qs = q.toString();
+  try { history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash); } catch {}
+}
+function updateSaved() { $("#savedChip").textContent = `Saved (${favs.size})`; }
 function render() {
-  const type = chip !== "all" ? chip : $("#qType").value;
-  const items = filterListings(listings, {
-    type, loc: $("#qLoc").value, budget: +$("#qBudget").value, beds: +$("#qBeds").value, showSold: $("#qSold").checked,
-  });
-  $("#count").textContent = `${items.length} of ${listings.length} residences`;
+  const st = readState();
+  const items = sortListings(filterListings(listings, { ...st, saved: st.saved ? favs : null }), st.sort);
+  updateSaved(); syncUrl();
+  const shortlistEmpty = st.saved && !favs.size;
+  $("#count").textContent = shortlistEmpty ? "Your shortlist is empty. Tap the heart on any residence to save it." : `${items.length} of ${listings.length} residences`;
   $("#grid").innerHTML = items.length ? items.map(l => {
-    const i = listings.indexOf(l), on = favs.has(i), st = STATUS_LABEL[l.status];
+    const i = listings.indexOf(l), on = favs.has(l.slug), st = STATUS_LABEL[l.status];
     return `<article class="card${l.status === "sold" ? " is-sold" : ""}" data-i="${i}">
       <div class="card-img"><img src="${IMG(l.img)}" srcset="${SRCSET(l.img)}" sizes="(max-width: 720px) 100vw, (max-width: 1024px) 50vw, 400px" alt="${l.title}" loading="lazy">${l.video ? `<video muted loop playsinline preload="none" poster="${IMG_SM(l.img)}" src="${VID(l.video)}" aria-hidden="true"></video><span class="vtag">Film</span>` : ""}<span class="tag">${l.type}</span>${st ? `<span class="status status-${l.status}">${st}</span>` : ""}
-        <button class="fav ${on ? "on" : ""}" data-fav="${i}" aria-pressed="${on}" aria-label="Save ${l.title} to shortlist">${favIcon(on)}</button>
+        <button class="fav ${on ? "on" : ""}" data-fav="${l.slug}" aria-pressed="${on}" aria-label="Save ${l.title} to shortlist">${favIcon(on)}</button>
       </div>
       <div class="card-body"><div class="price">${money(l.price)}</div><h3><button class="card-link" type="button">${l.title}</button></h3><div class="loc">${l.loc}</div>
         <div class="specs"><span><b>${num(l.beds)}</b> Beds</span><span><b>${num(l.baths)}</b> Baths</span><span><b>${num(l.sqft)}</b> Sq Ft</span></div>
       </div></article>`;
-  }).join("") : `<div class="empty">No residences match those criteria. Try widening your search.</div>`;
+  }).join("") : `<div class="empty" aria-hidden="true">${shortlistEmpty ? "Your shortlist is empty. Tap the heart on any residence to save it." : "No residences match those criteria. Try widening your search."}</div>`;
   document.querySelectorAll("#grid .card").forEach(card => {
     const v = card.querySelector("video"); if (!v || reduceMotion) return;
     card.addEventListener("mouseenter", () => { card.classList.add("vplay"); v.play().catch(() => {}); });
@@ -75,33 +100,69 @@ function render() {
 }
 
 $("#filters").addEventListener("click", e => {
-  const b = e.target.closest(".chip"); if (!b) return;
-  document.querySelectorAll(".chip").forEach(c => { c.classList.toggle("active", c === b); c.setAttribute("aria-pressed", c === b); });
+  const b = e.target.closest(".chip[data-f]"); if (!b) return;
+  document.querySelectorAll(".chip[data-f]").forEach(c => { c.classList.toggle("active", c === b); c.setAttribute("aria-pressed", c === b); });
   chip = b.dataset.f; $("#qType").value = "all"; render();
 });
 $("#qSold").addEventListener("change", render);
+$("#qSort").addEventListener("change", render);
+$("#savedChip").addEventListener("click", e => {
+  const b = e.currentTarget, on = b.getAttribute("aria-pressed") !== "true";
+  b.setAttribute("aria-pressed", on); b.classList.toggle("active", on); render();
+});
+// Share the current search (or the open listing) as a link
+async function copyLink(label) {
+  syncUrl();
+  try { await navigator.clipboard.writeText(location.href); toast(`Link to ${label} copied`); }
+  catch { toast("Copy the address from your browser's address bar to share this."); }
+}
+$("#shareBtn").addEventListener("click", () => copyLink("this search"));
 $("#search").addEventListener("submit", e => {
   e.preventDefault(); chip = "all";
+  $("#savedChip").setAttribute("aria-pressed", "false"); $("#savedChip").classList.remove("active");
   const t = $("#qType").value;
-  document.querySelectorAll(".chip").forEach(c => { c.classList.toggle("active", c.dataset.f === t); c.setAttribute("aria-pressed", c.dataset.f === t); });
+  document.querySelectorAll(".chip[data-f]").forEach(c => { c.classList.toggle("active", c.dataset.f === t); c.setAttribute("aria-pressed", c.dataset.f === t); });
   render(); $("#listings").scrollIntoView();
 });
 
 $("#grid").addEventListener("click", e => {
   const f = e.target.closest("[data-fav]");
   if (f) {
-    const i = +f.dataset.fav, on = !favs.has(i);
-    on ? favs.add(i) : favs.delete(i);
-    f.classList.toggle("on", on); f.setAttribute("aria-pressed", on); f.innerHTML = favIcon(on);
-    toast(on ? "Saved to your shortlist" : "Removed from shortlist");
+    toggleFav(f.dataset.fav);
     return;
   }
   const c = e.target.closest(".card"); if (c) openModal(+c.dataset.i, c.querySelector(".card-link"));
 });
 
+function toggleFav(slug) {
+  const on = !favs.has(slug);
+  on ? favs.add(slug) : favs.delete(slug);
+  saveFavs();
+  // On the shortlist view, un-saving should drop the card, so redraw; otherwise just flip the heart
+  if (readState().saved) {
+    const idx = [...document.querySelectorAll("#grid .card")].findIndex(c => c.querySelector(`[data-fav="${slug}"]`));
+    render();
+    if (!modal.classList.contains("open")) {
+      const hearts = document.querySelectorAll("#grid .fav");
+      (hearts[Math.min(idx, hearts.length - 1)] || $("#savedChip")).focus();
+    }
+  } else {
+    const f = document.querySelector(`[data-fav="${slug}"]`);
+    if (f) { f.classList.toggle("on", on); f.setAttribute("aria-pressed", on); f.innerHTML = favIcon(on); }
+    updateSaved();
+  }
+  syncModalFav();
+  toast(on ? "Saved to your shortlist" : "Removed from shortlist");
+}
+
 const modal = $("#modal");
+function syncModalFav() {
+  const b = $("#mFav"), on = !!openSlug && favs.has(openSlug);
+  b.setAttribute("aria-pressed", on); b.textContent = on ? "Saved ♥" : "Save to shortlist";
+}
 function openModal(i, opener) {
   const l = listings[i];
+  openSlug = l.slug;
   const mi = $("#mImg"), mv = $("#mVid");
   delete mi.dataset.fallback;
   mi.srcset = SRCSET(l.img); mi.sizes = "(max-width: 1024px) 100vw, 600px"; mi.src = IMG(l.img); mi.alt = l.title;
@@ -114,6 +175,16 @@ function openModal(i, opener) {
   $("#mType").textContent = st ? `${l.type} · ${st}` : l.type;
   $("#mTitle").textContent = l.title; $("#mLoc").textContent = l.loc;
   $("#mPrice").textContent = money(l.price); $("#mDesc").textContent = l.desc;
+  const ppsf = $("#mPpsf");
+  ppsf.textContent = l.price && l.sqft ? `$${Math.round(l.price / l.sqft).toLocaleString("en-US")} per sq ft` : "";
+  ppsf.hidden = !ppsf.textContent;
+  $("#mCalc").hidden = !l.price || l.status === "sold";
+  syncModalFav();
+  // Up to three other homes of the same type, nearest in price first
+  const sim = listings.filter(x => x !== l && x.status !== "sold" && x.type === l.type)
+    .sort((a, b) => Math.abs(a.price - l.price) - Math.abs(b.price - l.price)).slice(0, 3);
+  $("#similar").hidden = !sim.length;
+  $("#similarList").innerHTML = sim.map(x => `<button type="button" data-open="${x.slug}">${x.title}<span>${money(x.price)}</span></button>`).join("");
   $("#mStats").innerHTML = `<div><b>${num(l.beds)}</b>Beds</div><div><b>${num(l.baths)}</b>Baths</div><div><b>${num(l.sqft)}</b>Sq Ft</div><div><b>${l.acres ? num(l.acres) : "—"}</b>Acres</div>`;
   // Sold homes can't be toured; everything else gets the viewing form, tagged with the listing
   $("#tourForm").hidden = l.status === "sold";
@@ -124,15 +195,42 @@ function openModal(i, opener) {
   document.body.style.overflow = "hidden";
   pauseStage(true);
   $("#mClose").focus();
+  syncUrl();
 }
 function closeModal() {
   if (!modal.classList.contains("open")) return;
   $("#mVid").pause(); modal.classList.remove("open"); modal.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
   pauseStage(false);
-  if (lastFocus) lastFocus.focus({ preventScroll: true });
+  const slug = openSlug;
+  openSlug = null; syncUrl();
+  let back = lastFocus;
+  if (!back || !back.isConnected || back === document.body) {
+    // The opener was redrawn away (Saved view) or the page opened straight onto a listing
+    back = slug && document.querySelector(`[data-fav="${slug}"]`)?.closest(".card")?.querySelector(".card-link");
+    if (!back) { back = $("#listings"); back.tabIndex = -1; }
+  }
+  back.focus({ preventScroll: true });
 }
 $("#mClose").onclick = closeModal;
+$("#mFav").onclick = () => openSlug && toggleFav(openSlug);
+$("#mShare").onclick = () => copyLink("this residence");
+// Send this home's price to the mortgage calculator
+$("#mCalc").onclick = () => {
+  const l = listings.find(x => x.slug === openSlug), range = $("#price");
+  if (!l || !l.price) return;
+  range.value = Math.min(+range.max, Math.max(+range.min, Math.round(l.price / +range.step) * +range.step));
+  calc(); closeModal();
+  range.focus({ preventScroll: true });
+  $("#calculator").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+  const used = +range.value;
+  toast(used === l.price ? `Calculator set to ${l.title} (${money(l.price)})` : `Calculator set to ${money(used)}, the closest it goes to ${l.title} (${money(l.price)})`);
+};
+// "Similar residences" swaps the open listing in place
+$("#similarList").addEventListener("click", e => {
+  const b = e.target.closest("[data-open]"); if (!b) return;
+  openModal(listings.findIndex(x => x.slug === b.dataset.open), lastFocus);
+});
 modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
 modal.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); else trapFocus(modal, e); });
 // This is a concept site: the form never sends anything, and says so
@@ -430,4 +528,15 @@ const lift = () => {
 };
 if (reduceMotion) lift(); else { addEventListener("load", () => setTimeout(lift, 400)); setTimeout(lift, 2600); }
 
-render(); calc();
+// Restore filters and any open listing from the address bar, then draw
+(function restore() {
+  const q = new URLSearchParams(location.search), st = queryToState(q);
+  chip = st.type !== "all" && [...document.querySelectorAll(".chip[data-f]")].some(c => c.dataset.f === st.type) ? st.type : "all";
+  document.querySelectorAll(".chip[data-f]").forEach(c => { c.classList.toggle("active", c.dataset.f === chip); c.setAttribute("aria-pressed", c.dataset.f === chip); });
+  $("#qLoc").value = st.loc; $("#qSold").checked = st.showSold; $("#qSort").value = st.sort;
+  for (const [id, v] of [["#qBudget", st.budget], ["#qBeds", st.beds]]) { $(id).value = v; if ($(id).value !== String(v)) $(id).value = "0"; }
+  $("#savedChip").setAttribute("aria-pressed", st.saved); $("#savedChip").classList.toggle("active", st.saved);
+  const home = listings.findIndex(l => l.slug === q.get("home"));
+  render(); calc();
+  if (home >= 0) openModal(home, null);
+})();

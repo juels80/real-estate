@@ -3,8 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meridian Estates — Estate Listings Platform</title>
-<meta name="description" content="Meridian Estates: a concept estate listings platform by Xperience.">
+<title>Meridian Estates — Luxury Homes, Villas &amp; Penthouses (Concept)</title>
+<meta name="description" content="Browse eight sample luxury residences, from Mediterranean villas to coastal estates, with film tours and a mortgage estimator. A concept real estate site by Xperience; every listing is fictional.">
+<meta name="theme-color" content="#0f0f0e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230f0f0e'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='42' text-anchor='middle' fill='%23c3a46b'%3EM%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Meridian Estates">
+<meta property="og:title" content="Meridian Estates: homes worth arriving at">
+<meta property="og:description" content="A cinematic luxury listings concept: film tours, filters, shortlist and a mortgage estimator. Fictional brand, built by Xperience.">
+<link rel="canonical" href="https://real-estate-8h5h.vercel.app/">
+<meta property="og:url" content="https://real-estate-8h5h.vercel.app/">
+<meta property="og:image" content="https://real-estate-8h5h.vercel.app/assets/images/photo-1748063578185-3d68121b11ff.jpg">
+<meta property="og:image:alt" content="Modern house exterior glowing at night">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Meridian Estates","description":"A concept luxury real estate site. All listings are fictional.","creator":{"@type":"Organization","name":"Xperience","url":"https://www.xperiencestudio.org"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -79,8 +91,13 @@
       <button class="chip" data-f="Estate" aria-pressed="false">Estates</button>
       <button class="chip" data-f="Penthouse" aria-pressed="false">Penthouses</button>
       <button class="chip" data-f="Coastal" aria-pressed="false">Coastal</button>
+      <button class="chip" id="savedChip" type="button" aria-pressed="false">Saved (0)</button>
       <label class="check"><input type="checkbox" id="qSold"> Include sold</label>
+      <label class="sort"><span>Sort</span>
+        <select id="qSort"><option value="featured">Featured</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="beds-desc">Most bedrooms</option><option value="size-desc">Largest</option></select>
+      </label>
       <span class="result-count" id="count" aria-live="polite"></span>
+      <button class="link-btn" id="shareBtn" type="button">Copy link to this search</button>
     </div>
     <div class="grid" id="grid"></div>
   </div>
@@ -237,8 +254,15 @@
       <h3 id="mTitle"></h3>
       <p class="loc" id="mLoc" style="color:var(--muted)"></p>
       <p class="price" id="mPrice"></p>
+      <span class="ppsf" id="mPpsf" hidden></span>
       <div class="stat-row" id="mStats"></div>
       <p class="desc" id="mDesc"></p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="mFav" type="button" aria-pressed="false"></button>
+        <button class="btn ghost" id="mCalc" type="button">Estimate payment</button>
+        <button class="btn ghost" id="mShare" type="button">Copy link</button>
+      </div>
+      <div class="similar" id="similar" hidden><h4>Similar residences</h4><div id="similarList"></div></div>
       <p class="sold-note" id="soldNote" hidden>This residence has sold. Ask an advisor about similar homes.</p>
       <form class="tour-form" id="tourForm">
         <input type="hidden" id="tourListing" name="listing">

@@ -7,7 +7,7 @@ Meridian Estates is not a real company. Every listing, price and figure on the s
 ## What's on the page
 
 - **Hero:** a short looping film of a coastal home on desktop. Phones get a still photo instead and never download the video.
-- **Listings:** eight sample residences you can filter by type, location, budget and bedrooms. Homes can be marked "Under offer" or "Sold", and sold homes are hidden unless you tick *Include sold*. Hovering a card that has film plays a preview, and each listing opens in a detail view with a viewing request form. The form is a demo and sends nothing.
+- **Listings:** eight sample residences you can filter by type, location, budget and bedrooms, and sort by price, bedrooms or size. Hearts save homes to a shortlist that is remembered in your browser. The address bar mirrors your filters and open listing, so any view can be shared by link. Homes can be marked "Under offer" or "Sold", and sold homes are hidden unless you tick *Include sold*. Hovering a card that has film plays a preview, and each listing opens in a detail view with a viewing request form. The form is a demo and sends nothing.
 - **Gallery:** a slideshow of film and photos with wipe transitions, plus a photo and film grid that opens into a fullscreen viewer.
 - **Scroll film:** a section where a framed video opens out to full screen as you scroll, followed by three short captions.
 - **Mortgage calculator:** an estimate of principal and interest, with a clear disclaimer that it is not a loan offer.

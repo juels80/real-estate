@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { money, num, filterListings, monthlyPayment } = require("../js/lib.js");
+const { money, num, slugify, filterListings, sortListings, stateToQuery, queryToState, monthlyPayment } = require("../js/lib.js");
 
 const listings = [
   { title: "Casa Blanca Terrace", loc: "Marbella, Spain", type: "Villa", price: 4250000, beds: 5, status: "active" },
@@ -62,4 +62,45 @@ test("monthlyPayment matches the standard amortization formula", () => {
 test("monthlyPayment edge cases", () => {
   assert.equal(monthlyPayment(1200000, 0, 0, 10), 10000);
   assert.equal(monthlyPayment(1000000, 100, 6, 30), 0);
+});
+
+test("slugify makes stable URL ids", () => {
+  assert.equal(slugify("Casa Blanca Terrace"), "casa-blanca-terrace");
+  assert.equal(slugify("Glasshouse No. 9"), "glasshouse-no-9");
+  assert.equal(slugify("Café  Ñandú!"), "cafe-nandu");
+});
+
+test("filterListings can keep only saved homes", () => {
+  assert.deepEqual(titles(filterListings(listings, { saved: new Set(["villa-serena"]) })), ["Villa Serena"]);
+  assert.deepEqual(titles(filterListings(listings, { saved: new Set() })), []);
+});
+
+test("saved homes stay visible in the shortlist even after they sell", () => {
+  assert.deepEqual(titles(filterListings(listings, { saved: new Set(["monolith-house", "villa-serena"]) })), ["Villa Serena", "Monolith House"]);
+});
+
+test("sortListings orders by price and puts unpriced homes last", () => {
+  assert.deepEqual(titles(sortListings(listings, "price-asc")), ["Cedar Ridge", "Monolith House", "Casa Blanca Terrace", "Villa Serena", "Unpriced Loft"]);
+  assert.deepEqual(titles(sortListings(listings, "price-desc")), ["Villa Serena", "Casa Blanca Terrace", "Monolith House", "Cedar Ridge", "Unpriced Loft"]);
+});
+
+test("sortListings leaves the input alone and ignores unknown sorts", () => {
+  const before = titles(listings);
+  sortListings(listings, "price-asc");
+  assert.deepEqual(titles(listings), before);
+  assert.deepEqual(titles(sortListings(listings, "nonsense")), before);
+});
+
+test("filter state round-trips through the query string", () => {
+  const s = { type: "Villa", loc: "spain", budget: 6000000, beds: 4, showSold: true, saved: false, sort: "price-asc" };
+  assert.deepEqual(queryToState(stateToQuery(s)), s);
+  assert.equal(stateToQuery({}), "");
+});
+
+test("queryToState survives junk input", () => {
+  const s = queryToState("budget=abc&beds=-3&sort=evil&loc=" + "x".repeat(200));
+  assert.equal(s.budget, 0);
+  assert.equal(s.beds, 0);
+  assert.equal(s.sort, "featured");
+  assert.equal(s.loc.length, 80);
 });

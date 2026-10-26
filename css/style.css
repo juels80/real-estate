@@ -386,3 +386,19 @@ footer { padding: 70px 0 40px; border-top: 1px solid var(--line); }
   .lb-media img, .lb-media video { max-height: calc(100dvh - 200px); }
   .lb-bar { padding: 18px 76px 24px; flex-direction: column; text-align: center; gap: 4px; }
 }
+
+/* Sort, saved, share and listing extras */
+#listings:focus { outline: none; }
+.sort { display: inline-flex; align-items: center; gap: 8px; align-self: center; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.sort select { background: var(--ink-2); color: var(--cream); border: 1px solid var(--line); padding: 8px 10px; font: 400 13px var(--sans); letter-spacing: 0; text-transform: none; }
+.link-btn { align-self: center; font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.link-btn:hover, .link-btn:focus-visible { color: var(--gold-2); }
+.modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+.modal-actions .btn { padding: 11px 16px; font-size: 11px; }
+.modal-actions .btn[aria-pressed="true"] { border-color: var(--gold); color: var(--gold-2); }
+.ppsf { display: block; margin-top: -8px; margin-bottom: 18px; font-size: 13px; color: var(--muted); }
+.similar { margin-bottom: 26px; }
+.similar h4 { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; font-family: var(--sans); font-weight: 500; }
+.similar button { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 14px; border: 1px solid var(--line); margin-bottom: 6px; text-align: left; font-size: 14px; transition: border-color .3s; }
+.similar button:hover, .similar button:focus-visible { border-color: var(--gold); }
+.similar button span { color: var(--gold-2); }
